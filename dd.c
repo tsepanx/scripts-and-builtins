@@ -1,11 +1,13 @@
+/*
+ * Original program
+ * https://github.com/coreutils/coreutils/blob/master/src/dd.c
+ */
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
 #include <string.h>
-
-#define ARGS_CNT 3
 
 int to_int(char ch) { return (int) ch - '0'; }
 
@@ -58,29 +60,27 @@ unsigned int copy(char* from_path, char* to_path, unsigned int chunk_size, int l
 }
 
 int main(int argn, char * argv[]) {
-    if (argn != ARGS_CNT + 1) {
-        printf("Wrong args count\n");
-        exit(1);
-    }
 
     char* from_path = argv[1];
     char* to_path = argv[2];
-//    int chunk_size = to_int(*argv[3]);
+
+    int chunk_size;
+    if (argn >= 3 + 1) {
+        chunk_size = to_int(*argv[3]);
+    } else {
+        chunk_size = 2 << 13; // 8096
+    }
+
+    int logging_flag;
+    if (argn >= 4 + 1) {
+        logging_flag = to_int(*argv[4]);
+    } else {
+        logging_flag = 1;
+    }
+
+    copy(from_path, to_path, chunk_size, logging_flag);
 
     printf("FROM: %s | TO: %s\n", from_path, to_path);
-
-
-    for (int i = 1; i < 2; ++i) {
-        clock_t start = clock();
-
-        int chunk_size = i * 128;
-        size_t size_in_bytes = copy(from_path, to_path, chunk_size, 1);
-
-        unsigned int ticks = clock() - start;
-        float seconds = ((float) ticks)/CLOCKS_PER_SEC;
-        long int speed = (int) (((float) size_in_bytes) / seconds);
-        printf("SECONDS: %.4f, SPEED: %.20zu\n", seconds, speed);
-    }
 }
 
 
