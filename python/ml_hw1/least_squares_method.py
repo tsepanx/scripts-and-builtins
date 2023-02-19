@@ -1,7 +1,13 @@
 import numpy as np
+import pandas as pd
 
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
+
+x_train = pd.read_csv('task1_data.csv').T.values[0]
+y_train = pd.read_csv('task1_data.csv').T.values[1]
+x_test = pd.read_csv('task1_data.csv').T.values[2]
+y_test = pd.read_csv('task1_data.csv').T.values[3]
 
 
 def get_curve_points(coeffs: list[float], x_lim, count=20) -> tuple[list[float], list[float], str]:
@@ -66,36 +72,43 @@ def matrices_2d_method(points: np.ndarray, degree=2) -> list[float]:
     return coefficients
 
 
-xlim = [-20, 20]
-ylim = xlim
+if __name__ == "__main__":
+    xlim = [-10, 10]
+    ylim = xlim
 
-plt.xlim(*xlim)
-plt.ylim(*ylim)
-plt.legend()
+    plt.xlim(*xlim)
+    plt.ylim(*ylim)
 
+    points = np.array([
+        [1, 10],
+        [-3, 0],
+        [-1, -2],
+        [1.2, 1.2],
+        [3, 7],
+        [4, 3],
+    ])
 
-points = np.array([
-    [1, 10],
-    [-3, 0],
-    [-1, -2],
-    [1.2, 1.2],
-    [3, 7],
-    [4, 3],
-])
+    # x_coords, y_coords = np.split(points, 2, axis=1)
+    # plt.scatter(x_coords, y_coords)
 
-x_coords, y_coords = np.split(points, 2, axis=1)
-plt.scatter(x_coords, y_coords)
+    plt.scatter(x_train, y_train, label="train")
+    plt.scatter(x_test, y_test, label="test")
 
-coeffs = matrices_2d_method(points)
+    p_train = np.stack([x_train, y_train], axis=1)
 
-x_coords_curve, y_coords_curve, label_curve = get_curve_points(coeffs, xlim)
+    # coeffs = matrices_2d_method(points, degree=3)
+    coeffs = matrices_2d_method(p_train, degree=1)
 
-plt.plot(
-    x_coords_curve, y_coords_curve,
-    label=label_curve,
-    marker="o",
-    markersize=4,
-    color="orange"
-)
+    x_coords_curve, y_coords_curve, label_curve = get_curve_points(coeffs, xlim, count=100)
+    print(label_curve)
 
-plt.show()
+    plt.plot(
+        x_coords_curve, y_coords_curve,
+        label=label_curve,
+        marker="o",
+        markersize=2,
+        color="green"
+    )
+
+    plt.legend()
+    plt.show()

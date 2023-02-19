@@ -4,6 +4,8 @@ import numpy as np
 
 from sklearn import linear_model, datasets
 
+
+
 data = pd.read_csv('task1_data.csv')
 
 X_train, y_train, X_test, y_test = data.T.values
@@ -27,3 +29,15 @@ plt.scatter(X_test, y_test)
 plt.plot(X_test, y_prediction)
 
 plt.show()
+
+
+def fff(x_coords, y_coords):
+    from numpy.linalg import lstsq
+    # points = [(1,5),(3,4)]
+    # x_coords, y_coords = zip(*points)
+    A = np.stack([x_coords, np.ones(len(x_coords)).reshape(-1, 1)]).T[0]
+    m, c = lstsq(A, y_coords)[0]
+    print("Line Solution is y = {m}x + {c}".format(m=m,c=c))
+
+
+fff(X_test, y_prediction)
