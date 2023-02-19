@@ -1,8 +1,9 @@
 import numpy as np
 
+from typing import Sequence
 from matplotlib import pyplot as plt
 
-from matrices import get_curve_points
+from matrices import get_curve
 from lsm import lsm_matrix
 
 # data = pd.read_csv('task1_data.csv')
@@ -12,31 +13,10 @@ from lsm import lsm_matrix
 # x_test = data.T.values[2]
 # y_test = data.T.values[3]
 
-if __name__ == "__main__":
-    border = 10
-    # plt.xlim(-border, border)
-    # plt.ylim(-border, border)
+Points = tuple[Sequence[float], Sequence[float]]
 
-    # points = np.array([
-    #     [1, 10],
-    #     [-3, 0],
-    #     [-1, -2],
-    #     [1.2, 1.2],
-    #     [3, 7],
-    #     [4, 3],
-    # ])
-    # x_coords, y_coords = np.split(points, 2, axis=1)
 
-    n = 500
-    np.random.seed(10)
-
-    # coords_list = lambda x: np.random.multivariate_normal(0, x, n).reshape(-1, 1)
-    # # coords_list = lambda: np.random.exponential(10, n).reshape(-1, 1)
-    # # coords_list = lambda: np.random.beta(1, 2, n).reshape(-1, 1)
-    #
-    # xs = coords_list(1)
-    # ys = coords_list(0.5)
-
+def correlated_data() -> Points:
     xx = np.array([-0.51, 51.2])
     yy = np.array([0.33, 51.6])
     means = [xx.mean(), yy.mean()]
@@ -50,12 +30,39 @@ if __name__ == "__main__":
     xs = xs.reshape(-1, 1)
     ys = ys.reshape(-1, 1)
 
+    return xs, ys
+
+
+def my_points() -> Points:
+    points = np.array([
+        [1, 10],
+        [-3, 0],
+        [-1, -2],
+        [1.2, 1.2],
+        [3, 7],
+        [4, 3],
+    ])
+
+    xs, ys = np.split(points, 2, axis=1)
+    return xs, ys
+
+
+if __name__ == "__main__":
+    border = 50
+    plt.xlim(-border, border)
+    plt.ylim(-border, border)
+
+    n = 500
+    np.random.seed(10)
+
+    # xs, ys = correlated_data()
+    xs, ys = my_points()
+
     plt.scatter(xs, ys)
 
     coeffs = lsm_matrix(xs, ys, max_degree=2)
 
-    xs_curve, ys_curve, label_curve = get_curve_points(coeffs, [-10, 100])
-    print(label_curve)
+    xs_curve, ys_curve, label_curve = get_curve(coeffs, [-border, border], step=0.5)
 
     plt.plot(
         xs_curve, ys_curve,

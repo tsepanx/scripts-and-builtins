@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Sequence
 import numpy as np
 
@@ -32,47 +33,59 @@ def matmul(a: Matrix, b: Matrix):
     return c
 
 
-def get_curve_points(coeffs: list[float], x_lim=None, step=1) -> tuple[list[float], list[float], str]:
+@dataclass
+class Curve:
+    xs: Sequence[float]
+    ys: Sequence[float]
+    label: str
+
+    def __iter__(self):
+        return iter([self.xs, self.ys, self.label])
+
+
+def curve_label(coeffs: list[float]) -> str:
+    s = ''
+    pow = 0
+
+    filtered_coeffs = list(filter(
+        lambda x: x != 0,
+        map(
+            lambda x: round(x, COEF_LABEL_ROUND_SIGNS),
+            reversed(coeffs)
+        )
+    ))
+
+    for c in filtered_coeffs:
+        if c != 0:
+            s_coef = f'+ {c}' if c > 0 and len(filtered_coeffs) != 1 else f'{c}'
+            s_x = '' if pow == 0 else 'x' if pow == 1 else f'x^{pow}'
+            s = f'{s_coef}{s_x} ' + s
+
+        pow += 1
+    return 'y = ' + s
+
+
+def curve_value_at(coeffs: list[float], x) -> float:
+    res = 0
+    pow = 0
+    for c in reversed(coeffs):
+        res += c * x ** pow
+        pow += 1
+
+    return res
+
+
+def get_curve(coeffs: list[float], x_lim=None, step=1) -> Curve:
     # f = lambda x: a * x ** 2 + b * x + c
-
-    def func_s(coeffs: list[float]) -> str:
-        s = ''
-        pow = 0
-
-        filtered_coeffs = list(filter(
-            lambda x: x != 0,
-            map(
-                lambda x: round(x, COEF_LABEL_ROUND_SIGNS),
-                reversed(coeffs)
-            )
-        ))
-
-        for c in filtered_coeffs:
-            if c != 0:
-                s_coef = f'+ {c}' if c > 0 and len(filtered_coeffs) != 1 else f'{c}'
-                s_x = '' if pow == 0 else 'x' if pow == 1 else f'x^{pow}'
-                s = f'{s_coef}{s_x} ' + s
-
-            pow += 1
-        return 'y = ' + s
-
-    def func(coeffs: list[float], x) -> float:
-        res = 0
-        pow = 0
-        for c in reversed(coeffs):
-            res += c * x ** pow
-            pow += 1
-
-        return res
 
     # x_left, x_right = x_lim
     # x_coords = np.arange(x_left, x_right, (x_right - x_left) / count).reshape(-1, 1)
     # x_coords = list(x_coords.transpose()[0])
 
-    xs = np.arange(x_lim[0], x_lim[1], step)
-    y_coords = [func(coeffs, x) for x in xs]
+    xs = list(np.arange(x_lim[0], x_lim[1], step))
+    ys = [curve_value_at(coeffs, x) for x in xs]
 
-    return xs, y_coords, func_s(coeffs)
+    return Curve(xs, ys, curve_label(coeffs))
 
 
 def nullspace(a: Matrix):
