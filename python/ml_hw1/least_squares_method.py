@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 
 
-def update_curve(line: Line2D, coeffs: list[float], x_lim, count=20):
+def get_curve_points(coeffs: list[float], x_lim, count=20) -> tuple[list[float], list[float], str]:
     x_left, x_right = x_lim
     x_coords = np.arange(x_left, x_right, (x_right - x_left) / count).reshape(-1, 1)
     x_coords = list(x_coords.transpose()[0])
@@ -35,14 +35,7 @@ def update_curve(line: Line2D, coeffs: list[float], x_lim, count=20):
 
     y_coords = [func(coeffs, x) for x in x_coords]
 
-    # plt.plot(
-    #     x_coords, y_coords,
-    #     label=func_s(coeffs)
-    # )
-
-    line.set_xdata(x_coords)
-    line.set_ydata(y_coords)
-    line.set_label(func_s(coeffs))
+    return x_coords, y_coords, func_s(coeffs)
 
 
 def matrices_2d_method(points: np.ndarray, degree=2) -> list[float]:
@@ -73,16 +66,6 @@ def matrices_2d_method(points: np.ndarray, degree=2) -> list[float]:
     return coefficients
 
 
-def update_points(scatter, points: np.ndarray):
-    x_coords, y_coords = np.split(points, 2, axis=1)
-    # x_coords: np.ndarray
-    # y_coords: np.ndarray
-
-    # plt.scatter(x_coords, y_coords)
-    scatter.set_xdata(x_coords)
-    scatter.set_ydata(y_coords)
-
-
 xlim = [-20, 20]
 ylim = xlim
 
@@ -90,36 +73,29 @@ plt.xlim(*xlim)
 plt.ylim(*ylim)
 plt.legend()
 
-points_scatter = plt.scatter([1], [1])
-line = plt.plot(
-    [], [],
+
+points = np.array([
+    [1, 10],
+    [-3, 0],
+    [-1, -2],
+    [1.2, 1.2],
+    [3, 7],
+    [4, 3],
+])
+
+x_coords, y_coords = np.split(points, 2, axis=1)
+plt.scatter(x_coords, y_coords)
+
+coeffs = matrices_2d_method(points)
+
+x_coords_curve, y_coords_curve, label_curve = get_curve_points(coeffs, xlim)
+
+plt.plot(
+    x_coords_curve, y_coords_curve,
+    label=label_curve,
     marker="o",
     markersize=4,
-    color="orange",
+    color="orange"
 )
 
-for i in range(10):
-    points = np.array([
-        [i * 3, 10],
-        [-3, 0],
-        [-1, -2],
-        [1.2, 1.2],
-        [3, 7],
-        [4, 3],
-    ])
-    points2 = np.array([
-        [-1 + i * 3, 2],
-        [0 + i, 0],
-        [1 + i * 2, -3],
-        [2 - i, -5]
-    ])
-
-    points = points2
-
-    update_points(points_scatter, points)
-
-    coeffs: list[float] = matrices_2d_method(points, degree=1)
-
-    update_curve(line, coeffs, x_lim=xlim)
-
-    plt.draw()
+plt.show()
