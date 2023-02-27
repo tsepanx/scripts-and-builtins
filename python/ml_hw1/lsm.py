@@ -33,5 +33,17 @@ def lsm_matrix(xs: np.ndarray, ys: np.ndarray, max_degree=2) -> list[float]:
     return coefficients
 
 
-def lsm_deriv(xs: np.ndarray, ys: np.ndarray, max_degree=2):
-    pass
+def lsm_analytical_line(xs: np.ndarray, ys: np.ndarray):
+
+    xm = xs.mean()
+    ym = ys.mean()
+
+    xy_mean = (xs * ys).mean()
+
+    x_squared_mean = (xs * xs).mean()
+    x_mean_squared = xs.mean() ** 2
+
+    k = (xy_mean - xm * ym) / (x_squared_mean - x_mean_squared)
+    b = ym - k * xm
+
+    return k, b

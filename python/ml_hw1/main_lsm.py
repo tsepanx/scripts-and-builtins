@@ -4,7 +4,7 @@ from typing import Sequence
 from matplotlib import pyplot as plt
 
 from matrices import get_curve
-from lsm import lsm_matrix
+from lsm import lsm_matrix, lsm_analytical_line
 
 # data = pd.read_csv('task1_data.csv')
 #
@@ -55,12 +55,18 @@ if __name__ == "__main__":
     n = 500
     np.random.seed(10)
 
-    # xs, ys = correlated_data()
-    xs, ys = my_points()
+    xs, ys = correlated_data()
+    # xs, ys = my_points()
 
     plt.scatter(xs, ys)
 
-    coeffs = lsm_matrix(xs, ys, max_degree=2)
+    coeffs = lsm_matrix(xs, ys, max_degree=1)
+    coeffs2 = lsm_analytical_line(xs, ys)
+
+    delta = 10 ** -6
+
+    coeffs_diff = np.array(coeffs) - np.array(coeffs2)
+    assert (coeffs_diff < delta).all()
 
     xs_curve, ys_curve, label_curve = get_curve(coeffs, [-border, border], step=0.5)
 
