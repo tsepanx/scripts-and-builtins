@@ -26,7 +26,7 @@ unsigned int copy(char* from_path, char* to_path, unsigned int chunk_size, int l
     int from_fd = open(from_path, O_RDONLY);
     int to_fd = open(to_path, O_CREAT | O_WRONLY, 0666);
 
-    char *buff = malloc(sizeof(char) * chunk_size);
+    char* buff = malloc(sizeof(char) * chunk_size);
     while (1) {
         int read_size = (int) read(from_fd, buff, chunk_size);
 
