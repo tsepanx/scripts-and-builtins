@@ -10,7 +10,7 @@
 
 
 #define SERVER_IP_ADDR "127.0.0.1"
-#define SERVER_PORT 2001
+//#define SERVER_PORT 2001
 
 #define SLEEP_USECONDS 1000000
 
@@ -88,20 +88,24 @@ int client_main(int socket_fd) {
 
     write_to_file("img.svg", server_msg);
 
-//    printf("%lu\n", strlen(server_msg));
-//    printf("%s\n", server_msg);
-
     return 0;
 }
 
+void wait_interrupt(char* msg_print) {
+    printf("%s", msg_print);
+    char *q1 = malloc(sizeof(char) * 10);
+
+    scanf("%s", q1);
+}
+
 int main(int argn, char** argv) {
-//    int SERVER_PORT;
-//    if (argn > 1) {
-//        SERVER_PORT = atoi(argv[1]);
-//    } else {
-//        printf("You haven't provided SERVER PORT");
-//        return -1;
-//    }
+    int SERVER_PORT;
+    if (argn > 1) {
+        SERVER_PORT = atoi(argv[1]);
+    } else {
+        printf("You haven't provided SERVER PORT");
+        return -1;
+    }
 
     struct sockaddr_in server_addr;
     // Set IP and Port
@@ -109,27 +113,43 @@ int main(int argn, char** argv) {
     server_addr.sin_addr.s_addr = inet_addr(SERVER_IP_ADDR);
     server_addr.sin_port = htons(SERVER_PORT);
 
+    // === CREATE SOCKET ===
+
+    wait_interrupt("Create socket?");
+
     int socket_fd = create_socket_fd();
     if (socket_fd == -1) {
-        printf("Create socket: FAIL\n");
+        printf("Create socket: FAILED\n");
         return -1;
     } else {
         printf("Create socket: OK\n");
     }
 
-    int connection_result = connect_to_addr(socket_fd, server_addr);
+    // === CONNECT TO SOCKET ===
 
-    if (connection_result != 0) {
+    wait_interrupt("Connect to socket?");
+    printf("Connecting: %s : %d\n", SERVER_IP_ADDR, SERVER_PORT);
+
+    int conn_code = connect_to_addr(socket_fd, server_addr);
+    if (conn_code != 0) {
         printf("Connect: FAILED\n");
         return -1;
     } else {
-        printf("Connect: OK\n");
+        printf("Connect: OK (%d)\n", socket_fd);
     }
 
+    // === CLIENT MAIN ===
 
-    if (client_main(socket_fd) != 0) {
+    wait_interrupt("Client main?");
+
+    int main_code = client_main(socket_fd);
+    if (main_code != 0) {
         return -1;
     }
+
+    // === CLOSE SOCKET ===
+
+    wait_interrupt("Close sockets?");
 
     printf("Closing socket...\n");
     close(socket_fd);

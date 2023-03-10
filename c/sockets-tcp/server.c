@@ -13,19 +13,51 @@ char *svg_begin = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1000\" heig
 char *svg_text = "<text x=\"350\" y=\"840\" style=\"font-size:72px;fill:#000\">Hello, %s!</text>";
 char *svg_end = "</svg>";
 
-struct sockaddr_in server_addr, client_addr;
-int welcoming_sock, connection_sock, client_struct_length = sizeof(client_addr);
+struct sockaddr_in server_addr;
 char client_message[2000], server_message[2000];
 
 // Sends a message to the accepted client through the connection socket.
-int send_message(char *message)
-{
-    if (send(connection_sock, message, strlen(message), 0) < 0)
+int send_(int conn_socket_fd, char *message) {
+    if (send(conn_socket_fd, message, strlen(message), 0) < 0)
     {
         printf("Failed to send a message to client\n");
         return -1;
     }
     return 0;
+}
+
+int accept_(int accepting_socket_fd, struct sockaddr* client_addr) {
+
+    int addr_len = sizeof(&client_addr);
+
+    int conn_socket_fd = accept(accepting_socket_fd, client_addr, &addr_len);
+    return conn_socket_fd;
+}
+
+int server_main(int conn_socket_fd) {
+    // Receive the client's username
+    if (recv(conn_socket_fd, client_message, sizeof(client_message), 0) < 0)
+    {
+        printf("Failed to receive a message from client\n");
+        return -1;
+    } else { printf("Receive: OK\n"); }
+
+    printf("Client's message: %s\n", client_message);
+
+    // Send a vector image to the client
+    send_(conn_socket_fd, svg_begin);
+    sprintf(server_message, svg_text, client_message);
+    send_(conn_socket_fd, server_message);
+    send_(conn_socket_fd, svg_end);
+
+    return 0;
+}
+
+void wait_interrupt(char* msg_print) {
+    printf("%s", msg_print);
+    char *q1 = malloc(sizeof(char) * 10);
+
+    scanf("%s", q1);
 }
 
 int main(int argn, char** argv) {
@@ -37,10 +69,13 @@ int main(int argn, char** argv) {
         return -1;
     }
 
-    // Create TCP socket
-    welcoming_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (welcoming_sock < 0)
-    {
+    // === CREATE SOCKET ===
+
+    wait_interrupt("Create socket?");
+
+    // Create 'Accepting' TCP socket
+    int accepting_socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (accepting_socket_fd < 0) {
         printf("Failed to create a socket\n");
         return -1;
     }
@@ -50,17 +85,25 @@ int main(int argn, char** argv) {
     server_addr.sin_addr.s_addr = inet_addr(SERVER_IP_ADDR);
     server_addr.sin_port = htons(SERVER_PORT);
 
+    // === BIND SOCKET TO HOST:PORT
+
+    wait_interrupt("Bind socket?");
+
     // Bind the socket to IP:Port
-    if (bind(welcoming_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-    {
-        printf("Failed to bind the socket\n");
+    int bind_code = bind(accepting_socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (bind_code < 0) {
+        printf("Failed to bind the socket: %d\n", bind_code);
         return -1;
     } else {
         printf("Bind: OK\n");
     }
 
+    // === LISTEN ===
+
+    wait_interrupt("Listen?");
+
     // Listen for one incoming TCP connection
-    if (listen(welcoming_sock, 1) < 0)
+    if (listen(accepting_socket_fd, 1) < 0)
     {
         printf("Failed to listen to incoming connections\n");
         return -1;
@@ -70,37 +113,38 @@ int main(int argn, char** argv) {
 
     printf("Server is listening on %s:%d\n", SERVER_IP_ADDR, SERVER_PORT);
 
-    // Accept an incoming client connection
-    connection_sock = accept(welcoming_sock, (struct sockaddr *)&client_addr, &client_struct_length);
-    if (connection_sock < 0) {
+    // === ACCEPT (CREATE CONN_SOCKET) ===
+
+    wait_interrupt("Accept (conn_socket create)?");
+
+    // Create new socket for receive/sending packets
+    struct sockaddr client_addr;
+    int conn_socket_fd = accept_(accepting_socket_fd, &client_addr);
+    if (conn_socket_fd < 0) {
         printf("Failed to accept the client connection\n");
         return -1;
+    } else { printf("Accept: OK (%d)\n", conn_socket_fd); }
+
+
+    // === SERVER MAIN ===
+
+    wait_interrupt("Server main?");
+
+    int main_code = server_main(conn_socket_fd);
+    if (main_code != 0) {
+        printf("Server main: FAILED\n");
     } else {
-        printf("Accept: OK\n");
+        printf("Server main: OK\n");
     }
 
-    // Receive the client's username
-    if (recv(connection_sock, client_message, sizeof(client_message), 0) < 0)
-    {
-        printf("Failed to receive a message from client\n");
-        return -1;
-    } else {
-        printf("Receive: OK\n");
-    }
+    // === CLOSE SOCKETS ===
 
-    printf("Client's message: %s\n", client_message);
+    wait_interrupt("Close sockets?");
 
-    // Send a vector image to the client
-    send_message(svg_begin);
-    sprintf(server_message, svg_text, client_message);
-    send_message(server_message);
-    send_message(svg_end);
-
-
-    printf("Closing socket...\n");
+    printf("Closing socket...");
     // Close the sockets
-    close(connection_sock);
-    close(welcoming_sock);
+    close(conn_socket_fd);
+    close(accepting_socket_fd);
 
     return 0;
 }
