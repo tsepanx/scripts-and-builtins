@@ -1,4 +1,6 @@
 *.out
+*.o
+*.a
 client
 server
 cmake-build-debug/
