@@ -115,36 +115,39 @@ int main(int argn, char** argv) {
 
     // === ACCEPT (CREATE CONN_SOCKET) ===
 
-    wait_interrupt("Accept (conn_socket create)?");
+    while (1) {
 
-    // Create new socket for receive/sending packets
-    struct sockaddr client_addr;
-    int conn_socket_fd = accept_(accepting_socket_fd, &client_addr);
-    if (conn_socket_fd < 0) {
-        printf("Failed to accept the client connection\n");
-        return -1;
-    } else { printf("Accept: OK (%d)\n", conn_socket_fd); }
+        wait_interrupt("Accept (conn_socket create)?");
+
+        // Create new socket for receive/sending packets
+        struct sockaddr client_addr;
+        int conn_socket_fd = accept_(accepting_socket_fd, &client_addr);
+        if (conn_socket_fd < 0) {
+            printf("Failed to accept the client connection\n");
+            return -1;
+        } else { printf("Accept: OK (%d)\n", conn_socket_fd); }
 
 
-    // === SERVER MAIN ===
+        // === SERVER MAIN ===
 
-    wait_interrupt("Server main?");
+        wait_interrupt("Server main?");
 
-    int main_code = server_main(conn_socket_fd);
-    if (main_code != 0) {
-        printf("Server main: FAILED\n");
-    } else {
-        printf("Server main: OK\n");
+        int main_code = server_main(conn_socket_fd);
+        if (main_code != 0) {
+            printf("Server main: FAILED\n");
+        } else {
+            printf("Server main: OK\n");
+        }
+
+        printf("Closing connection socket (%d)", conn_socket_fd);
+        close(conn_socket_fd);
     }
 
     // === CLOSE SOCKETS ===
 
-    wait_interrupt("Close sockets?");
-
-    printf("Closing socket...");
-    // Close the sockets
-    close(conn_socket_fd);
-    close(accepting_socket_fd);
-
-    return 0;
+//    printf("Closing accepting socket...");
+//    // Close the socket
+//    close(accepting_socket_fd);
+//
+//    return 0;
 }
