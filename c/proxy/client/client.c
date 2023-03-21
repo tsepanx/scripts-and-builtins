@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 
 int SERVER_PORT;
 struct sockaddr_in server_addr;
@@ -22,13 +23,13 @@ int client_main(int socket_fd) {
     int send_res = send_message(socket_fd, input_name);
     if (log_func(send_res, "Sending") == -1) return -1;
 
-    int msg_size = 2000;
-    char server_msg[msg_size];
+    char server_message[MESSAGE_SIZE];
+    memset(server_message, '\0', sizeof(server_message));
 
-    int recv_res = receive_message(socket_fd, server_msg, msg_size);
+    int recv_res = receive_message(socket_fd, server_message, MESSAGE_SIZE * 5);
     if (log_func(recv_res, "Receiving") == -1) return -1;
 
-    write_to_file("img.svg", server_msg);
+    write_to_file("img.svg", server_message);
 
     return 0;
 }
@@ -53,16 +54,10 @@ int main(int argn, char** argv) {
     if (log_func(conn_code, "Connect") == -1) return -1;
 
     // === CLIENT MAIN ===
-
-    wait_interrupt("Client main?");
     int main_code = client_main(socket_fd);
     if (log_func(main_code, "Client main") == -1) return -1;
 
     // === CLOSE SOCKET ===
-
-    wait_interrupt("Close sockets?");
-    printf("Closing socket...\n");
+    printf("Closing MAIN socket...\n");
     close(socket_fd);
-
-    return 0;
 }

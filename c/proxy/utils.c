@@ -24,13 +24,15 @@ int log_func(int func_result, char* log_msg) {
     }
 }
 
-void write_to_file(char* fpath, char* string) {
-    int fd = open(fpath, O_CREAT | O_WRONLY, 0666);
+void write_to_file(char* path, char* string) {
+//    int fd = open(fpath, O_CREAT | O_WRONLY, 0666);
+//    write(fd, string, strlen(string));
+//    close(fd);
+    FILE* file = fopen(path, "w");
+    fprintf(file, "%s", string);
 
-    printf("Result string to file: %s\n", string);
-
-    write(fd, string, strlen(string));
-    close(fd);
+    printf("WRITING TO FILE %s:\n\n%s\n\n", path, string);
+    fclose(file);
 }
 
 void wait_interrupt(char* msg_print) {

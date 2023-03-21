@@ -7,6 +7,7 @@
 
 #include <arpa/inet.h>
 
+#define MESSAGE_SIZE 2000
 #define DEFAULT_SERVER_PORT 2022
 
 extern int log_func(int func_result, char* log_msg);
