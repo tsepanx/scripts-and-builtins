@@ -2,18 +2,19 @@
 // Created by void on 3/21/23.
 //
 
-//#include "lib_tcp.h"
 #include "../lib_tcp.h"
+#include "../utils.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
+int SERVER_PORT;
+struct sockaddr_in server_addr;
+
 int client_main(int socket_fd) {
-    char* input_name = malloc(sizeof(char) * 100);;
+    char* input_name = malloc(sizeof(char) * 100);
 
     printf("Enter name: ");
     scanf("%s", input_name);
@@ -32,37 +33,14 @@ int client_main(int socket_fd) {
     return 0;
 }
 
-void wait_interrupt(char* msg_print) {
-    printf("%s", msg_print);
-    char *q1 = malloc(sizeof(char) * 10);
-
-    scanf("%s", q1);
-}
-
-#define SERVER_IP_ADDR "127.0.0.1"
-#define DEFAULT_SERVER_PORT 2022
-int SERVER_PORT; // f.e. 2022
-
 int main(int argn, char** argv) {
-    if (argn > 1) {
-        SERVER_PORT = (int) strtol(argv[1], NULL, 10);
-    } else {
-//        printf("You haven't provided SERVER PORT");
-//        return -1;
-        SERVER_PORT = DEFAULT_SERVER_PORT;
-        printf("setting SERVER_PORT to default: %d\n", SERVER_PORT);
-    }
+    SERVER_PORT = get_server_port(argn, argv);
 
-    struct sockaddr_in server_addr;
     // Set IP and Port
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP_ADDR);
-    server_addr.sin_port = htons(SERVER_PORT);
+    setup_server_addr(&server_addr, SERVER_PORT);
 
     // === CREATE SOCKET ===
-
     wait_interrupt("Create socket?");
-
     int socket_fd = create_tcp_socket_fd();
     if (log_func(socket_fd, "Create socket") == -1) return -1;
 

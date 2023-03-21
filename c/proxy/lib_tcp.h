@@ -7,11 +7,13 @@
 
 #include <arpa/inet.h>
 
-extern void write_to_file(char* path, char* buf);
+#define SERVER_IP_ADDR "127.0.0.1"
+
 extern int create_tcp_socket_fd();
+extern int accept_conn(int accepting_socket_fd, struct sockaddr* client_addr);
+extern int bind_socket(int accepting_socket_fd, struct sockaddr_in* server_addr);
 extern int send_message(int socket_fd, char *buf);
 extern int receive_message(int socket_fd, char* buf, int size);
 extern int connect_to_addr(int socket_fd, struct sockaddr_in server_addr);
-int log_func(int func_result, char* log_msg);
 
 #endif //C_LIB_TCP_H

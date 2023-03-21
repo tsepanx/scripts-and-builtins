@@ -7,21 +7,13 @@
 #include <unistd.h>
 
 #include <fcntl.h>
+#include "utils.h"
 
 
 #define SERVER_IP_ADDR "127.0.0.1"
 //#define SERVER_PORT 2001
 
 #define SLEEP_USECONDS 1000000
-
-void write_to_file(char* fpath, char* string) {
-    int fd = open(fpath, O_CREAT | O_WRONLY, 0666);
-
-    printf("Result string to file: %s\n", string);
-
-    write(fd, string, strlen(string));
-    close(fd);
-}
 
 int create_socket_fd() {
     usleep(SLEEP_USECONDS);
@@ -84,13 +76,6 @@ int client_main(int socket_fd) {
     write_to_file("img.svg", server_msg);
 
     return 0;
-}
-
-void wait_interrupt(char* msg_print) {
-    printf("%s", msg_print);
-    char *q1 = malloc(sizeof(char) * 10);
-
-    scanf("%s", q1);
 }
 
 int main(int argn, char** argv) {

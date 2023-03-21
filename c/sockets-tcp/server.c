@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "utils.h"
 
 #define SERVER_IP_ADDR "127.0.0.1"
 //#define SERVER_PORT 2002
@@ -26,7 +27,7 @@ int send_(int conn_socket_fd, char *message) {
     return 0;
 }
 
-int accept_(int accepting_socket_fd, struct sockaddr* client_addr) {
+int accept_conn(int accepting_socket_fd, struct sockaddr* client_addr) {
 
     int addr_len = sizeof(&client_addr);
 
@@ -51,13 +52,6 @@ int server_main(int conn_socket_fd) {
     send_(conn_socket_fd, svg_end);
 
     return 0;
-}
-
-void wait_interrupt(char* msg_print) {
-    printf("%s", msg_print);
-    char *q1 = malloc(sizeof(char) * 10);
-
-    scanf("%s", q1);
 }
 
 int main(int argn, char** argv) {

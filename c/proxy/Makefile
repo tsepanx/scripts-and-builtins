@@ -7,10 +7,10 @@ CLIENT_DIR = client
 SERVER_DIR = server
 BIN_DIR = bin
 
-SRCS_CLIENT = $(CLIENT_DIR)/client.c lib_tcp.c
+SRCS_CLIENT = $(CLIENT_DIR)/client.c lib_tcp.c utils.c
 OBJS_CLIENT = $(SRCS_CLIENT:%.c=$(BUILD_DIR)/%.o)
 
-SRCS_SERVER = $(SERVER_DIR)/server.c lib_tcp.c
+SRCS_SERVER = $(SERVER_DIR)/server.c lib_tcp.c utils.c
 OBJS_SERVER = $(SRCS_SERVER:%.c=$(BUILD_DIR)/%.o)
 
 

@@ -8,16 +8,23 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 #include "lib_tcp.h"
+#include "utils.h"
 
-void write_to_file(char* path, char* buf) {
-    int fd = open(path, O_CREAT | O_WRONLY, 0666);
+int accept_conn(int accepting_socket_fd, struct sockaddr* client_addr) {
+    int addr_len = sizeof(&client_addr);
 
-    printf("Result buf to file: %s\n", buf);
+    int conn_socket_fd = accept(accepting_socket_fd, client_addr, (socklen_t*) &addr_len);
+    return conn_socket_fd;
+}
 
-    write(fd, buf, strlen(buf));
-    close(fd);
+int bind_socket(int accepting_socket_fd, struct sockaddr_in* server_addr) {
+    int server_addr_size = sizeof(*server_addr);
+
+    int bind_code = bind(accepting_socket_fd, (struct sockaddr*) server_addr, server_addr_size);
+    return bind_code;
 }
 
 int create_tcp_socket_fd() {
@@ -29,11 +36,6 @@ int send_message(int socket_fd, char *buf) {
     size_t msg_len = strlen(buf);
 
     int send_result = (int) send(socket_fd, buf, msg_len, 0);
-
-    if (send_result < 0) {
-        printf("Failed to send a message to client\n");
-        return -1;
-    }
     return send_result;
 }
 
@@ -60,14 +62,3 @@ int connect_to_addr(int socket_fd, struct sockaddr_in server_addr) {
 }
 
 
-int log_func(int func_result, char* log_msg) {
-    printf("%s: ", log_msg);
-
-    if (func_result < 0) { // == -1
-        printf("FAILED\n");
-        return -1;
-    } else {
-        printf("OK\n");
-        return func_result;
-    }
-}
