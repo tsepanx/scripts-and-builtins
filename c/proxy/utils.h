@@ -10,6 +10,8 @@
 #define MESSAGE_SIZE 2000
 #define DEFAULT_SERVER_PORT 2022
 
+enum boolean { true, false };
+
 extern int log_func(int func_result, char* log_msg);
 extern void write_to_file(char* path, char* buf);
 extern int wait_interrupt(char* msg_print);

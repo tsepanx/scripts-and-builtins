@@ -3,7 +3,6 @@
 //
 
 #include "utils.h"
-#include "lib_tcp.h"
 
 #include <errno.h>
 
@@ -17,8 +16,8 @@ int log_func(int func_result, char* log_msg) {
     printf("%s: ", log_msg);
 
     if (func_result < 0) { // == -1
-        printf("FAILED (%d)\n", func_result);
-        printf("=== Error: %s ===", strerror(errno));
+        fprintf(stderr, "FAILED (%d)\n", func_result);
+        fprintf(stderr, "=== Error: %s ===", strerror(errno));
         return -1;
     } else {
         printf("OK (%d)\n", func_result);

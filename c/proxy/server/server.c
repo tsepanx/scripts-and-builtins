@@ -12,10 +12,16 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <signal.h>
 
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 5
+
+pthread_mutex_t send_lock;
+pthread_mutex_t recv_lock;
 
 int SERVER_PORT;
+int accepting_socket_fd;
 struct sockaddr_in server_addr;
 char client_msg_buf[MESSAGE_SIZE];
 char server_template_msg[MESSAGE_SIZE];
@@ -24,33 +30,54 @@ char *svg_begin = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1000\" heig
 char *svg_text = "<text x=\"350\" y=\"840\" style=\"font-size:72px;fill:#000\">Hello, %s!</text>";
 char *svg_end = "</svg>";
 
-int server_main(int conn_socket_fd) {
+void* server_main(void* arg) {
+    int conn_socket_fd = *(int*) arg;
+
+    bzero(client_msg_buf, MESSAGE_SIZE);
+
+    pthread_mutex_lock(&recv_lock);
     int recv_code = recv_single(conn_socket_fd, client_msg_buf, MESSAGE_SIZE);
-    if (log_func(recv_code, "Receiving SINGLE") < 0) return -1;
+    pthread_mutex_unlock(&recv_lock);
+
+    if (log_func(recv_code, "Receiving SINGLE") < 0) return (void *) -1;
 
     printf("Client's message: %s\n", client_msg_buf);
 
     // Send a vector image to the client
-    sprintf(server_template_msg, svg_text, client_msg_buf);
+    pthread_mutex_lock(&send_lock);
 
+    sprintf(server_template_msg, svg_text, client_msg_buf);
     send_message(conn_socket_fd, svg_begin);
     send_message(conn_socket_fd, server_template_msg);
     send_message(conn_socket_fd, svg_end);
 
-//    printf("Parts:\n\n%s\n\n%s\n\n%s\n\n", svg_begin, server_template_msg, svg_end);
+    pthread_mutex_unlock(&send_lock);
+
     memset(server_template_msg, '\0', sizeof(server_template_msg));
 
-    return 0;
+    printf("Closing CONNECTION socket: (%d)\n", conn_socket_fd);
+    close(conn_socket_fd);
+
+    return (void *) 0;
+}
+
+void handle_ctrl_c(int sig) {
+    printf("Closing ACCEPTING socket: (%d)\n", accepting_socket_fd);
+    close(accepting_socket_fd);
+    pthread_exit(NULL);
+
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argn, char** argv) {
+    signal(SIGINT, handle_ctrl_c);
+
+
     SERVER_PORT = get_server_port(argn, argv);
 
     // === CREATE SOCKET ===
-    // wait_interrupt("Create socket?");
-
     // Create 'Accepting' TCP socket
-    int accepting_socket_fd = create_tcp_socket_fd();
+    accepting_socket_fd = create_tcp_socket_fd();
     if (log_func(accepting_socket_fd, "Create ACCEPTING socket") < 0) exit(EXIT_FAILURE);
 
     // === BIND SOCKET TO HOST:PORT
@@ -64,8 +91,6 @@ int main(int argn, char** argv) {
     print_sockfd_info(accepting_socket_fd);
 
     // === LISTEN ===
-    // wait_interrupt("Listen?");
-
     int listen_code = listen(accepting_socket_fd, MAX_CLIENTS);
     if (log_func(listen_code, "LISTENING") < 0) exit(EXIT_FAILURE);
 
@@ -74,27 +99,20 @@ int main(int argn, char** argv) {
     // === ACCEPT (CREATE CONN_SOCKET) ===
     struct sockaddr client_addr;
     while (1) {
-        // wait_interrupt("Accept (conn_socket create)?");
-
         // Create new socket for receive/sending packets
         printf("ACCEPTING new connections\n");
         int conn_socket_fd = accept_conn(accepting_socket_fd, &client_addr);
         if (log_func(listen_code, "Create CONNECTION socket") < 0) exit(EXIT_FAILURE);
-
-        // use getsockname to get the local address and port number of the new socket
-
         print_sockfd_info(conn_socket_fd);
 
+        // === PTHREAD CREATE ===
+        pthread_t tid;
+        int pthread_create_code = pthread_create(&tid, NULL, server_main, (void *)&conn_socket_fd);
+        if (log_func(pthread_create_code, "Creating PTHREAD") != 0) break;
+
         // === SERVER MAIN ===
-        int main_code = server_main(conn_socket_fd);
-        log_func(main_code, "Server main");
-
-        printf("Closing CONNECTION socket: (%d)\n", conn_socket_fd);
-        close(conn_socket_fd);
-
-        if (!wait_interrupt("Continue connections?")) { break; }
+//        int main_code = server_main(conn_socket_fd);
+//        log_func(main_code, "Server main");
+//        if (!wait_interrupt("Continue connections?")) { break; }
     }
-
-    printf("Closing ACCEPTING socket: (%d)\n", accepting_socket_fd);
-    close(accepting_socket_fd);
 }

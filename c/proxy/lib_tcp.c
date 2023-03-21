@@ -6,9 +6,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
+#include <pthread.h>
 
 #include "lib_tcp.h"
 #include "utils.h"
@@ -40,9 +38,8 @@ int send_message(int socket_fd, char *buf) {
 }
 
 int recv_single(int socket_fd, char* buf, int size) {
-    ssize_t recv_result = recv(socket_fd, buf, size, 0);
-
-    return (int) recv_result;
+    int recv_result = (int) recv(socket_fd, buf, size, 0);
+    return recv_result;
 }
 
 int recv_available(int socket_fd, char* buf, int max_size) {
