@@ -11,7 +11,7 @@
 
 extern int create_tcp_socket_fd();
 extern int accept_conn(int accepting_socket_fd, struct sockaddr* client_addr);
-extern int bind_socket(int accepting_socket_fd, struct sockaddr_in* server_addr);
+extern int bind_socket(int socket_fd, struct sockaddr_in* server_addr);
 extern int send_message(int socket_fd, char *buf);
 extern int recv_single(int socket_fd, char* buf, int size);
 extern int recv_available(int socket_fd, char* buf, int max_size);

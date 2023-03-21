@@ -20,10 +20,10 @@ int accept_conn(int accepting_socket_fd, struct sockaddr* client_addr) {
     return conn_socket_fd;
 }
 
-int bind_socket(int accepting_socket_fd, struct sockaddr_in* server_addr) {
+int bind_socket(int socket_fd, struct sockaddr_in* server_addr) {
     int server_addr_size = sizeof(*server_addr);
 
-    int bind_code = bind(accepting_socket_fd, (struct sockaddr*) server_addr, server_addr_size);
+    int bind_code = bind(socket_fd, (struct sockaddr*) server_addr, server_addr_size);
     return bind_code;
 }
 

@@ -9,13 +9,12 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <string.h>
 
 int SERVER_PORT;
 struct sockaddr_in server_addr;
 
 int client_main(int socket_fd) {
-    char* input_name = malloc(sizeof(char) * 100);
+    char* input_name = calloc(sizeof(char), MESSAGE_SIZE);
 
     printf("Enter name: ");
     scanf("%s", input_name);
@@ -40,17 +39,18 @@ int main(int argn, char** argv) {
     setup_server_addr(&server_addr, SERVER_PORT);
 
     // === CREATE SOCKET ===
-    wait_interrupt("Create socket?");
+    // wait_interrupt("Create socket?");
     int socket_fd = create_tcp_socket_fd();
     if (log_func(socket_fd, "Create socket") == -1) return -1;
 
     // === CONNECT TO SOCKET ===
-
-    wait_interrupt("Connect to socket?");
+    // wait_interrupt("Connect to socket?");
     printf("Connecting: %s : %d\n", SERVER_IP_ADDR, SERVER_PORT);
 
     int conn_code = connect_to_addr(socket_fd, server_addr);
     if (log_func(conn_code, "Connect") == -1) return -1;
+
+    print_sockfd_info(socket_fd);
 
     // === CLIENT MAIN ===
     int main_code = client_main(socket_fd);

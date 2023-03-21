@@ -12,8 +12,9 @@
 
 extern int log_func(int func_result, char* log_msg);
 extern void write_to_file(char* path, char* buf);
-extern void wait_interrupt(char* msg_print);
+extern int wait_interrupt(char* msg_print);
 extern int get_server_port(int argn, char** argv);
 extern void setup_server_addr(struct sockaddr_in* server_addr, int SERVER_PORT);
+extern void print_sockfd_info(int sockfd);
 
 #endif //C_UTILS_H
