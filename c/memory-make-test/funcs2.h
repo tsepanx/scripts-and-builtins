@@ -5,7 +5,7 @@
 #ifndef C_FUNCS_H
 #define C_FUNCS_H
 
-#endif //C_FUNCS_H
+extern void f1(int a);
+extern void f2(int a);
 
-void f1(int a);
-void f2(int a);
+#endif //C_FUNCS_H

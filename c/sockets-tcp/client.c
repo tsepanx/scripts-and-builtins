@@ -24,7 +24,6 @@ void write_to_file(char* fpath, char* string) {
 }
 
 int create_socket_fd() {
-
     usleep(SLEEP_USECONDS);
     int result = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     return result;
@@ -34,22 +33,18 @@ int create_socket_fd() {
 int send_message(char *msg, int socket_fd) {
     size_t msg_len = strlen(msg);
 
-    usleep(SLEEP_USECONDS);
+//    usleep(SLEEP_USECONDS);
     ssize_t send_result = send(socket_fd, msg, msg_len, 0);
 
     if (send_result < 0) {
         printf("Failed to send a message to client\n");
         return -1;
     }
-    return send_result;
+    return (int) send_result;
 }
 
 int receive_message(int socket_fd, char* buffer, int size) {
-    // Receive the client's username
-//    int buff_size = sizeof(buffer);
-//    int buff_size = 1024;
-
-    usleep(SLEEP_USECONDS);
+//    usleep(SLEEP_USECONDS);
     ssize_t recv_result = recv(socket_fd, buffer,size,0);
 
     if (recv_result < 0) {
@@ -57,7 +52,7 @@ int receive_message(int socket_fd, char* buffer, int size) {
         return -1;
     }
 
-    return recv_result;
+    return (int) recv_result;
 }
 
 int connect_to_addr(int socket_fd, struct sockaddr_in server_addr) {

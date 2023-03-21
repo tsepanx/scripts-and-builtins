@@ -2,8 +2,7 @@
 // Created by void on 3/20/23.
 //
 
-#include "stdio.h"
-#include "funcs.h"
+#include "funcs2.h"
 
 int main() {
     int a = 10;  // Allocated in Stack
