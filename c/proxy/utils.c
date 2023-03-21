@@ -67,7 +67,7 @@ void print_sockfd_info(int sockfd) {
     struct sockaddr_in conn_addr;
     socklen_t addr_len = sizeof(conn_addr);
     getsockname(sockfd, (struct sockaddr *)&conn_addr, &addr_len);
-    printf("\n===== %d =====\n", sockfd);
+    printf("===== %d =====\n", sockfd);
     printf("Socket address: %s\n", inet_ntoa(conn_addr.sin_addr));
     printf("Socket port: %d\n", ntohs(conn_addr.sin_port));
     printf("=====   =====\n");

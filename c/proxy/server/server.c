@@ -55,34 +55,29 @@ void* server_main(void* arg) {
 
     memset(server_template_msg, '\0', sizeof(server_template_msg));
 
-    printf("Closing CONNECTION socket: (%d)\n", conn_socket_fd);
+    printf("Closing CONNECTION socket: (%d)\n============\n", conn_socket_fd);
     close(conn_socket_fd);
 
     return (void *) 0;
 }
 
 void handle_ctrl_c(int sig) {
-    printf("Closing ACCEPTING socket: (%d)\n", accepting_socket_fd);
+    printf("\nClosing ACCEPTING socket: (%d)\n", accepting_socket_fd);
     close(accepting_socket_fd);
     pthread_exit(NULL);
-
-    exit(EXIT_SUCCESS);
+//    exit(EXIT_SUCCESS);
 }
 
 int main(int argn, char** argv) {
     signal(SIGINT, handle_ctrl_c);
 
-
     SERVER_PORT = get_server_port(argn, argv);
 
-    // === CREATE SOCKET ===
-    // Create 'Accepting' TCP socket
+    // === CREATE ACCEPING SOCKET ===
     accepting_socket_fd = create_tcp_socket_fd();
     if (log_func(accepting_socket_fd, "Create ACCEPTING socket") < 0) exit(EXIT_FAILURE);
 
     // === BIND SOCKET TO HOST:PORT
-
-    // Set IP and Port
     setup_server_addr(&server_addr, SERVER_PORT);
 
     int bind_code = bind_socket(accepting_socket_fd, &server_addr);
@@ -96,23 +91,17 @@ int main(int argn, char** argv) {
 
     printf("=== Server is listening on \"%s:%d\" ===\n", SERVER_IP_ADDR, SERVER_PORT);
 
-    // === ACCEPT (CREATE CONN_SOCKET) ===
+    // === ACCEPT (CREATE CONNECTION SOCKET) ===
     struct sockaddr client_addr;
     while (1) {
-        // Create new socket for receive/sending packets
-        printf("ACCEPTING new connections\n");
         int conn_socket_fd = accept_conn(accepting_socket_fd, &client_addr);
+        printf("\n\n");
         if (log_func(listen_code, "Create CONNECTION socket") < 0) exit(EXIT_FAILURE);
         print_sockfd_info(conn_socket_fd);
 
         // === PTHREAD CREATE ===
         pthread_t tid;
-        int pthread_create_code = pthread_create(&tid, NULL, server_main, (void *)&conn_socket_fd);
-        if (log_func(pthread_create_code, "Creating PTHREAD") != 0) break;
-
-        // === SERVER MAIN ===
-//        int main_code = server_main(conn_socket_fd);
-//        log_func(main_code, "Server main");
-//        if (!wait_interrupt("Continue connections?")) { break; }
+        int pthread_code = pthread_create(&tid, NULL, server_main, (void *)&conn_socket_fd);
+        if (log_func(pthread_code, "PTHREAD create") != 0) break;
     }
 }
