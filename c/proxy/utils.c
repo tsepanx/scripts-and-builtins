@@ -2,21 +2,23 @@
 // Created by void on 3/21/23.
 //
 
+#include "utils.h"
 #include "lib_tcp.h"
+
+#include <errno.h>
+
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <string.h>
 #include <stdio.h>
-#include "utils.h"
 
 int log_func(int func_result, char* log_msg) {
     printf("%s: ", log_msg);
 
     if (func_result < 0) { // == -1
         printf("FAILED (%d)\n", func_result);
+        printf("=== Error: %s ===", strerror(errno));
         return -1;
     } else {
         printf("OK (%d)\n", func_result);
@@ -25,9 +27,6 @@ int log_func(int func_result, char* log_msg) {
 }
 
 void write_to_file(char* path, char* string) {
-//    int fd = open(fpath, O_CREAT | O_WRONLY, 0666);
-//    write(fd, string, strlen(string));
-//    close(fd);
     FILE* file = fopen(path, "w");
     fprintf(file, "%s", string);
 

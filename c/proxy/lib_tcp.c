@@ -39,15 +39,26 @@ int send_message(int socket_fd, char *buf) {
     return send_result;
 }
 
-int receive_message(int socket_fd, char* buf, int size) {
+int recv_single(int socket_fd, char* buf, int size) {
     ssize_t recv_result = recv(socket_fd, buf, size, 0);
 
-    if (recv_result < 0) {
-        printf("Failed to receive a message from client\n");
-        return -1;
-    }
-
     return (int) recv_result;
+}
+
+int recv_available(int socket_fd, char* buf, int max_size) {
+    char* cur_buf_ptr;
+    int recv_total_bytes = 0;
+
+    while (recv_total_bytes < max_size) {
+        cur_buf_ptr = buf + recv_total_bytes;
+
+        int new_bytes = recv_single(socket_fd, cur_buf_ptr, max_size);
+        if (log_func(new_bytes, "Receiving SINGLE") < 0) return -1;
+
+        recv_total_bytes += new_bytes;
+        if (new_bytes == 0) { break; }
+    }
+    return recv_total_bytes;
 }
 
 int connect_to_addr(int socket_fd, struct sockaddr_in server_addr) {

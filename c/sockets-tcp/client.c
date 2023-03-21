@@ -35,9 +35,9 @@ int send_message(char *msg, int socket_fd) {
     return (int) send_result;
 }
 
-int receive_message(int socket_fd, char* buffer, int size) {
+int recv_single(int socket_fd, char* buffer, int size) {
 //    usleep(SLEEP_USECONDS);
-    ssize_t recv_result = recv(socket_fd, buffer,size,0);
+    ssize_t recv_result = recv(socket_fd, buf, size, 0);
 
     if (recv_result < 0) {
         printf("Failed to receive a message from client\n");

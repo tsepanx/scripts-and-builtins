@@ -23,13 +23,12 @@ int client_main(int socket_fd) {
     int send_res = send_message(socket_fd, input_name);
     if (log_func(send_res, "Sending") == -1) return -1;
 
-    char server_message[MESSAGE_SIZE];
-    memset(server_message, '\0', sizeof(server_message));
+    char recv_buf[MESSAGE_SIZE];
 
-    int recv_res = receive_message(socket_fd, server_message, MESSAGE_SIZE * 5);
-    if (log_func(recv_res, "Receiving") == -1) return -1;
+    int recv_code = recv_available(socket_fd, recv_buf, MESSAGE_SIZE);
+    if (log_func(recv_code, "Receiving AVAILABLE") == -1) return -1;
 
-    write_to_file("img.svg", server_message);
+    write_to_file("img.svg", recv_buf);
 
     return 0;
 }
