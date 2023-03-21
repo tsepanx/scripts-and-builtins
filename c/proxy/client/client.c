@@ -2,7 +2,8 @@
 // Created by void on 3/21/23.
 //
 
-#include "lib_tcp.h"
+//#include "lib_tcp.h"
+#include "../lib_tcp.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -49,7 +50,7 @@ int main(int argn, char** argv) {
 //        printf("You haven't provided SERVER PORT");
 //        return -1;
         SERVER_PORT = DEFAULT_SERVER_PORT;
-        printf("setting SERVER_PORT to default: %d", SERVER_PORT);
+        printf("setting SERVER_PORT to default: %d\n", SERVER_PORT);
     }
 
     struct sockaddr_in server_addr;
