@@ -25,12 +25,27 @@ int log_func(int func_result, char* log_msg) {
     }
 }
 
-void write_to_file(char* path, char* string) {
+void write_to_file(char* path, char* buff) {
     FILE* file = fopen(path, "w");
-    fprintf(file, "%s", string);
+    fprintf(file, "%s", buff);
 
-    printf("WRITING TO FILE: %s, LEN:%lu\n", path, strlen(string));
+    printf("WRITING TO FILE: %s, LEN: %lu\n", path, strlen(buff));
     fclose(file);
+}
+
+int read_from_file(char* path, char* buff) {
+    FILE* file = fopen(path, "rb");
+
+    fseek(file, 0, SEEK_END); // seek to the end of the file
+    int file_size = (int) ftell(file); // get the file size
+    fseek(file, 0, SEEK_SET); // seek back to the beginning of the file
+
+    int read_code = (int) fread(buff, sizeof(char), file_size, file);
+    if (read_code < 0) { return -1; }
+
+    printf("READ FROM FILE: %s, LEN: %d\n", path, file_size);
+    fclose(file);
+    return read_code;
 }
 
 int wait_interrupt(char* msg_print) {

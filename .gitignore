@@ -5,3 +5,11 @@
 *.svg
 *.png
 *.jpg
+
+
+cmake*
+CMake*
+*.out
+*.img
+
+__pycache__

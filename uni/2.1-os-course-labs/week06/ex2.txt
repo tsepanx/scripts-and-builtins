@@ -1,0 +1,53 @@
+
+Assuming input:
+3
+2 100
+1 2
+2 1
+
+---
+for ex1.c:
+
+(1, 2) proc
+WT: 0
+CT: 3
+TAT: 2
+
+(2, 100) proc
+WT: 1
+CT: 103
+TAT: 100
+
+(2, 1) proc
+WT: 101
+CT: 104
+TAT: 1
+
+Avg CT, TAT: 70.000000, 34.333332
+
+---
+
+for ex2.c:
+
+(1, 2) proc
+WT: 0
+CT: 3
+TAT: 2
+
+(2, 1) proc
+WT: 1
+CT: 4
+TAT: 1
+
+(2, 100) proc
+WT: 2
+CT: 104
+TAT: 100
+
+Avg CT, TAT: 37.000000, 34.333332
+Process finished with exit code 0
+
+
+---
+
+In ex2.c order of last 2 processes is changed, so avg completion time is less, and also, waiting time is also much less

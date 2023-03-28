@@ -1,0 +1,10 @@
+
+To maximize hit/miss ratio, we need to minimize miss count.
+Main rule of how to do it, is to minimize number of different references between two references of same page.
+
+F.e., we can access pages in cycle, assuming that overall number of pages less or equals number of available page frames in memory.
+
+1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+Page frames number: 5
+
+In such example, there will be just 5 first misses, all other will be hits, as all pages (1-5) will be present in memory all the time

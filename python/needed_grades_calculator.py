@@ -32,7 +32,7 @@ class Course:
 
     @property
     def real_s(self):
-        return f"{self.cur_sum}" if self.cur_sum else f"({self.cur_sum_real})"
+        return f"{round(self.cur_sum, 2)}" if self.cur_sum else f"({round(self.cur_sum_real, 2)})"
 
     def cur_ratio(self):
         return self.cur_sum / self.cur_max
@@ -79,77 +79,101 @@ print(offsets_s.format('CUR', 'LEFT NEEDED', 'Percent LEFT'))
 courses = []
 
 
-c = Course('Diffurs', 55, [
-    (1, 15),  # Shilov theor 1
-    (7, 15),  # Practical 1
-    (12, 0),  # Bonus points
-    # (3, 0),   # Collocvium bonus points
-    (15, 15),  # Computational test
+# c = Course('Diffurs', 55, [
+#     (1, 15),  # Shilov theor 1
+#     (7, 15),  # Practical 1
+#     (12, 0),  # Bonus points
+#     # (3, 0),   # Collocvium bonus points
+#     (15, 15),  # Computational test
 
-    (11.5, 15),  # --- 2nd practical test
-    (4, 15),  # --- (THeor 2) Shilov test
-    # (4, 25)   # --- Final theor Oral
-])
-# courses.append(c)
-print(c.str_format(offsets_s))
-
-c = Course('OS\'i', 60, [
-    [8.3, 10],  # Quizzes
-    [30 * 0.7833, 30],  # HW's (Labs)
-    [10.5, 20],  # Midterm
-    # [15, 20],  # Final
-    # [16, 20],  # Unattended Oral
-
-    [5, 0],  # Participation
-])
-# courses.append(c)
+#     (11.5, 15),  # --- 2nd practical test
+#     (4, 15),  # --- (THeor 2) Shilov test
+#     # (4, 25)   # --- Final theor Oral
+# ])
+# # courses.append(c)
 # print(c.str_format(offsets_s))
 
-c = Course('Optimization', 60, [
-    (7.5, 15),  # Test 1
-    (17, 30),  # Midterm
-    (11, 15),  # Test 2
-    # (25, 40),  # Final
-])
+# c = Course('OS\'i', 60, [
+#     [8.3, 10],  # Quizzes
+#     [30 * 0.7833, 30],  # HW's (Labs)
+#     [10.5, 20],  # Midterm
+#     # [15, 20],  # Final
+#     # [16, 20],  # Unattended Oral
+
+#     [5, 0],  # Participation
+# ])
+# # courses.append(c)
+# # print(c.str_format(offsets_s))
+
+# c = Course('Optimization', 60, [
+#     (7.5, 15),  # Test 1
+#     (17, 30),  # Midterm
+#     (11, 15),  # Test 2
+#     # (25, 40),  # Final
+# ])
+# # print(c.str_format(offsets_s))
+# # courses.append(c)
+
+# c = Course('Probstat', 50, [
+#     [12, 14],  # Test1
+#     [12, 20],  # Midterm
+#     [7, 14],  # Test2
+#     # [0, 50], # Final
+# ])
 # print(c.str_format(offsets_s))
-# courses.append(c)
+# # courses.append(c)
 
-c = Course('Probstat', 50, [
-    [12, 14],  # Test1
-    [12, 20],  # Midterm
-    [7, 14],  # Test2
-    # [0, 50], # Final
+# c = Course('Intro to AI (Philo)', 60, [
+#     [25 * 0.65, 25],  # Midterm
+#     [20 * 0.82, 20],  # HW1
+#     [9, 10],  # Attendance
+#     # [1, 0], # Bonus
+#     [20 * 0.89, 20], #HW2
+#     [0.57 * 25, 25],  # Final
+# ])
+# # courses.append(c)
+
+
+# c = Course('Physics', 50, [
+#     # (3, 5),     # Attendance
+#     (6.4, 10),  # Quiz 1
+#     (5.3, 10),  # Quiz 2
+#     (7.5, 10),  # Quiz 3
+#     (5, 10),  # Quiz 4
+#     (0, 10),  # Quiz 5
+#     (3.75, 5),  # Assignment 1
+#     (3.75, 5),  # Assignment 2
+#     (5, 5),  # Assignment 3
+#     (3.75, 5),  # Assignment 4
+#     (4, 5),  # Assignment 5
+#     # (0, 25),    # Final
+# ])
+# print(c.str_format(offsets_s))
+# # courses.append(c)
+
+c = Course('ML', 65, [  # C
+    (30, 30),  # Assignment 1
+    (0.65 * 30, 30),  # Midterm
+    # (30, 40),  # Assignment 2
 ])
-print(c.str_format(offsets_s))
-# courses.append(c)
+courses.append(c)
 
-c = Course('Intro to AI (Philo)', 60, [
-    [25 * 0.65, 25],  # Midterm
-    [20 * 0.82, 20],  # HW1
-    [9, 10],  # Attendance
-    # [1, 0], # Bonus
-    [20 * 0.89, 20], #HW2
-    [0.57 * 25, 25],  # Final
+c = Course('Networks', 60, [  # C
+    # (0, 5)  # Quizzes
+    (9/11 * 20, 20),  # Midterm
+    (10, 10), # Lec attendance
+    (15, 15), # Labs
+    # (0, 50),  # Final
 ])
-# courses.append(c)
+courses.append(c)
 
-
-c = Course('Physics', 50, [
-    # (3, 5),     # Attendance
-    (6.4, 10),  # Quiz 1
-    (5.3, 10),  # Quiz 2
-    (7.5, 10),  # Quiz 3
-    (5, 10),  # Quiz 4
-    (0, 10),  # Quiz 5
-    (3.75, 5),  # Assignment 1
-    (3.75, 5),  # Assignment 2
-    (5, 5),  # Assignment 3
-    (3.75, 5),  # Assignment 4
-    (4, 5),  # Assignment 5
-    # (0, 25),    # Final
+c = Course('DB', 65, [  # B
+    (0.842 * 20, 20),  # Midterm
+    (19, 20), # Labs
+    # (18, 20), # Assignment
+    # (0, 40),  # Final
 ])
-print(c.str_format(offsets_s))
-# courses.append(c)
+courses.append(c)
 
 def sort_by(x):
     a = x.needed_ratio_for_left()
@@ -161,5 +185,5 @@ def sort_by(x):
 
 courses.sort(key=sort_by, reverse=True)
 c: Course
-# for c in courses:
-#     print(c.str_format(offsets_s))
+for c in courses:
+    print(c.str_format(offsets_s))

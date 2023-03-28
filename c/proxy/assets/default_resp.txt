@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Date: Mon, 23 Mar 2023 12:20:00 GMT
+Server: GGWP (Unix)
+Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
+Content-Type: text/html
+Connection: keep-alive
+
+<html>
+<body>
+<center><h1>PROXY SERVER</h1></center>
+</body>
+</html>

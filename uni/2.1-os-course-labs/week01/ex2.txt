@@ -1,0 +1,30 @@
+10087  cat ex1.txt
+10088  vi ex1.txt
+10089  /bin/ls /usr/bin | grep gcc | tail -n 5 > ex1.txt
+10090  cat ex1.txt
+10091  vi ex1.txt
+10092  which grep
+10093  /bin/ls /usr/bin | /bin/grep gcc | tail -n 5 > ex1.txt
+10094  cat ex1.txt
+10095  vi ex1.txt
+10096  vi ex1.sh
+10097  cat ~/.scripts/dwmblocks/battery.sh
+10098  vi ex1.sh
+10099  rm ex1.txt
+10100  ls
+10101* cd Folders/gh/os-course-labs
+10102  ls
+10103  chmod +x ex1.sh
+10104  ./ex1.sh
+10105* ls
+10106* cd week01
+10107* ls
+10108* cat ex1.txt
+10109* gs
+10110* gad
+10111* gs
+10112* gac 'week01: ex1'
+10113* gp
+10114  history 
+10115  history | tail -n 20
+10116  history | tail -n 30
