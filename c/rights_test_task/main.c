@@ -102,7 +102,13 @@ int traverse(char *path, struct user_input ui) {
             }
 
             char full_path[STR_SIZE];
-            snprintf(full_path, sizeof(full_path), "%s/%s", path, dirent_i->d_name);
+            // If path == "/", replace it with "" to avoid duplicate slashes "//sub-path"
+            snprintf(
+                full_path,
+                sizeof(full_path),
+                "%s/%s", (strcmp(path, "/") == 0 ? "" : path),
+                dirent_i->d_name
+            );
 
             // Recursively dive into sub-dir
             traverse(full_path, ui);
@@ -114,10 +120,10 @@ int traverse(char *path, struct user_input ui) {
 
 
 int main(int argn, char** argv) {
-//    if (geteuid() != 0) {
-//        fprintf(stderr, "This program must be run as root\n");
-//        return 1;
-//    }
+    if (geteuid() != 0) {
+        fprintf(stderr, "This program must be run as root\n");
+        return 1;
+    }
 
     struct user_input ui;
 
