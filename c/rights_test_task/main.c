@@ -22,64 +22,38 @@
 #define GRP_READ_BIT 5
 #define ALL_READ_BIT 2
 
-char* exclude_entries[] = { "/sys", "/proc" };
-
-struct user_input {
-    char* username;
-    char* groupname;
-    char* path;
-};
-
 struct path_rights {
     int writeable;
     int readable;
 };
 
-struct path_rights get_path_rights(struct stat path_stat, struct user_input ui) {
-    struct group* grp = getgrnam(ui.groupname);
-    struct passwd* usr = getpwnam(ui.username);
+char* exclude_entries[] = { "/sys", "/proc" };
 
-    unsigned int usr_uid = usr->pw_uid;
-    unsigned int grp_gid = grp->gr_gid;
-
+struct path_rights get_path_rights(struct stat path_stat, unsigned int uid, unsigned int gid) {
     unsigned int access_rights = path_stat.st_mode & ACCESSPERMS;
 
-    int readable = 0, writeable = 0;
+    struct path_rights pr = { 0, 0 };
 
     // file belongs to user
-    if (path_stat.st_uid == usr_uid) {
-        // writeable by user
-        if (access_rights & (1 << USR_WRITE_BIT)) {
-            writeable = 1;
-        }
-        if (access_rights & (1 << USR_READ_BIT)) {
-            readable = 1;
-        }
+    if (path_stat.st_uid == uid) {
+        if (access_rights & (1 << USR_WRITE_BIT)) { pr.writeable = 1; }
+        if (access_rights & (1 << USR_READ_BIT)) { pr.readable = 1; }
     }
 
     // file belongs to group
-    if (path_stat.st_gid == grp_gid) {
-        // writeable by group
-        if (access_rights & (1 << GRP_WRITE_BIT)) {
-            writeable = 1;
-        }
-        if (access_rights & (1 << GRP_READ_BIT)) {
-            readable = 1;
-        }
+    if (path_stat.st_gid == gid) {
+        if (access_rights & (1 << GRP_WRITE_BIT)) { pr.writeable = 1; }
+        if (access_rights & (1 << GRP_READ_BIT)) { pr.readable = 1; }
     }
 
-    // writeable by all
-    if (access_rights & (1 << ALL_WRITE_BIT)) {
-        writeable = 1;
-    }
-    if (access_rights & (1 << ALL_READ_BIT)) {
-        readable = 1;
-    }
+    // access rights by all
+    if (access_rights & (1 << ALL_WRITE_BIT)) { pr.writeable = 1; }
+    if (access_rights & (1 << ALL_READ_BIT)) { pr.readable = 1; }
 
-    return (struct path_rights) { writeable, readable};
+    return pr;
 }
 
-int traverse(char *path, struct user_input ui) {
+int traverse(char *path, unsigned int uid, unsigned int gid) {
     int exclude_arr_len = sizeof(exclude_entries) / sizeof(exclude_entries[0]);
     int matches_exclude = 0;
     for (int i = 0; i < exclude_arr_len; ++i) {
@@ -98,7 +72,7 @@ int traverse(char *path, struct user_input ui) {
     }
 
     int is_dir = S_ISDIR(path_stat.st_mode);
-    struct path_rights pr = get_path_rights(path_stat, ui);
+    struct path_rights pr = get_path_rights(path_stat, uid, gid);
 
     if (pr.writeable) {
         // printf("%o %b ", access_rights, access_rights);
@@ -131,7 +105,7 @@ int traverse(char *path, struct user_input ui) {
             );
 
             // Recursively dive into sub-dir
-            traverse(full_path, ui);
+            traverse(full_path, uid, gid);
         }
         closedir(dir);
     }
@@ -145,30 +119,36 @@ int main(int argn, char** argv) {
         return 1;
     }
 
-    struct user_input ui;
+    char* username;
+    char* groupname;
+    char* path;
 
     if (argn == 4) {
-        ui.username = argv[1];
-        ui.groupname = argv[2];
+        username = argv[1];
+        groupname = argv[2];
 
-        ui.path = malloc(STR_SIZE);
-        realpath(argv[3], ui.path);
+        path = malloc(STR_SIZE);
+        realpath(argv[3], path);
     } else {
         printf("Usage:\n# %s USERNAME GROUPNAME PATH\n", argv[0]);
         return -1;
     }
 
-    struct group* grp = getgrnam(ui.groupname);
+    struct group* grp = getgrnam(groupname);
+    struct passwd* usr = getpwnam(username);
+
     if (grp == NULL) {
-        fprintf(stderr, "No such group: %s\n", ui.groupname);
+        fprintf(stderr, "No such group: %s\n", groupname);
         return -1;
     }
 
-    struct passwd* usr = getpwnam(ui.username);
     if (usr == NULL) {
-        fprintf(stderr, "No such user: %s\n", ui.username);
+        fprintf(stderr, "No such user: %s\n", username);
         return -1;
     }
 
-    return traverse(ui.path, ui);
+    unsigned int input_uid = usr->pw_uid;
+    unsigned int input_gid = grp->gr_gid;
+
+    return traverse(path, input_uid, input_gid);
 }
