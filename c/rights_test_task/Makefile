@@ -1,11 +1,11 @@
 
 
-# CFLAGS = -Wall -Werror
-CFLAGS = -Wall -g
+CFLAGS = -Wall -Werror
+#CFLAGS = -Wall
 BUILD_DIR = build
 BIN_DIR = bin
 
-OUT= $(BUILD_DIR)/$(BIN_DIR)/main_run
+OUT= $(BIN_DIR)/main_exec
 
 all: clean build
 

@@ -26,7 +26,7 @@ struct user_input {
     char* path;
 };
 
-void check_rights(char* path, struct stat path_stat, struct user_input ui, int is_dir) {
+int path_writeable(struct stat path_stat, struct user_input ui) {
     struct group* grp = getgrnam(ui.groupname);
     struct passwd* usr = getpwnam(ui.username);
 
@@ -35,13 +35,11 @@ void check_rights(char* path, struct stat path_stat, struct user_input ui, int i
 
     unsigned int access_rights = path_stat.st_mode & ACCESSPERMS;
 
-    int writeable = 0;
-
     // file belongs to user
     if (path_stat.st_uid == usr_uid) {
         // writeable by user
         if (access_rights & (1 << USR_WRITE_BIT)) {
-            writeable = 1;
+            return 1;
         }
     }
 
@@ -49,20 +47,16 @@ void check_rights(char* path, struct stat path_stat, struct user_input ui, int i
     if (path_stat.st_gid == grp_gid) {
         // writeable by group
         if (access_rights & (1 << GRP_WRITE_BIT)) {
-            writeable = 1;
+            return 1;
         }
     }
 
     // writeable by all
     if (access_rights & (1 << ALL_WRITE_BIT)) {
-        writeable = 1;
+        return 1;
     }
 
-    if (writeable) {
-        // printf("%o %b ", access_rights, access_rights);
-        char* prefix = is_dir ? "d" : "f";
-        printf("%s %s\n", prefix, path);
-    }
+    return 0;
 }
 
 int traverse(char *path, struct user_input ui) {
@@ -75,7 +69,6 @@ int traverse(char *path, struct user_input ui) {
     }
     if (matches_exclude) { return 0; }
 
-
     struct stat path_stat;
     char err_msg[STR_SIZE];
 
@@ -85,7 +78,13 @@ int traverse(char *path, struct user_input ui) {
     }
 
     int is_dir = S_ISDIR(path_stat.st_mode);
-    check_rights(path, path_stat, ui, is_dir);
+    int is_writeable = path_writeable(path_stat, ui);
+
+    if (is_writeable) {
+        // printf("%o %b ", access_rights, access_rights);
+        char* prefix = is_dir ? "d" : "f";
+        printf("%s %s\n", prefix, path);
+    }
 
     if (is_dir == 1) {
         DIR *dir = opendir(path);
@@ -150,10 +149,5 @@ int main(int argn, char** argv) {
         return -1;
     }
 
-    printf("%s | %s | %s\n", ui.username, ui.groupname, ui.path);
-
-    int traverse_res = traverse(ui.path, ui);
-    if (traverse_res < 0) {
-        return -1;
-    }
+    return traverse(ui.path, ui);
 }
