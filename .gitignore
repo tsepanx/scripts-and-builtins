@@ -5,6 +5,7 @@
 *.svg
 *.png
 *.jpg
+*.gif
 
 
 cmake*
