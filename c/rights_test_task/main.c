@@ -18,6 +18,10 @@
 #define GRP_WRITE_BIT 4
 #define ALL_WRITE_BIT 1
 
+#define USR_READ_BIT 8
+#define GRP_READ_BIT 5
+#define ALL_READ_BIT 2
+
 char* exclude_entries[] = { "/sys", "/proc" };
 
 struct user_input {
@@ -26,7 +30,12 @@ struct user_input {
     char* path;
 };
 
-int path_writeable(struct stat path_stat, struct user_input ui) {
+struct path_rights {
+    int writeable;
+    int readable;
+};
+
+struct path_rights get_path_rights(struct stat path_stat, struct user_input ui) {
     struct group* grp = getgrnam(ui.groupname);
     struct passwd* usr = getpwnam(ui.username);
 
@@ -35,11 +44,16 @@ int path_writeable(struct stat path_stat, struct user_input ui) {
 
     unsigned int access_rights = path_stat.st_mode & ACCESSPERMS;
 
+    int readable = 0, writeable = 0;
+
     // file belongs to user
     if (path_stat.st_uid == usr_uid) {
         // writeable by user
         if (access_rights & (1 << USR_WRITE_BIT)) {
-            return 1;
+            writeable = 1;
+        }
+        if (access_rights & (1 << USR_READ_BIT)) {
+            readable = 1;
         }
     }
 
@@ -47,16 +61,22 @@ int path_writeable(struct stat path_stat, struct user_input ui) {
     if (path_stat.st_gid == grp_gid) {
         // writeable by group
         if (access_rights & (1 << GRP_WRITE_BIT)) {
-            return 1;
+            writeable = 1;
+        }
+        if (access_rights & (1 << GRP_READ_BIT)) {
+            readable = 1;
         }
     }
 
     // writeable by all
     if (access_rights & (1 << ALL_WRITE_BIT)) {
-        return 1;
+        writeable = 1;
+    }
+    if (access_rights & (1 << ALL_READ_BIT)) {
+        readable = 1;
     }
 
-    return 0;
+    return (struct path_rights) { writeable, readable};
 }
 
 int traverse(char *path, struct user_input ui) {
@@ -78,15 +98,15 @@ int traverse(char *path, struct user_input ui) {
     }
 
     int is_dir = S_ISDIR(path_stat.st_mode);
-    int is_writeable = path_writeable(path_stat, ui);
+    struct path_rights pr = get_path_rights(path_stat, ui);
 
-    if (is_writeable) {
+    if (pr.writeable) {
         // printf("%o %b ", access_rights, access_rights);
         char* prefix = is_dir ? "d" : "f";
         printf("%s %s\n", prefix, path);
     }
 
-    if (is_dir == 1) {
+    if (is_dir && pr.readable) {
         DIR *dir = opendir(path);
         if (!dir) {
             sprintf(err_msg, "dir %s", path);
@@ -101,11 +121,12 @@ int traverse(char *path, struct user_input ui) {
             }
 
             char full_path[STR_SIZE];
-            // If path == "/", replace it with "" to avoid duplicate slashes "//sub-path"
             snprintf(
                 full_path,
                 sizeof(full_path),
-                "%s/%s", (strcmp(path, "/") == 0 ? "" : path),
+                "%s/%s",
+                // If path == "/", replace it with "" to avoid duplicate slashes "//sub-path"
+                (strcmp(path, "/") == 0 ? "" : path),
                 dirent_i->d_name
             );
 
@@ -133,7 +154,7 @@ int main(int argn, char** argv) {
         ui.path = malloc(STR_SIZE);
         realpath(argv[3], ui.path);
     } else {
-        printf("Usage:\n$ %s USERNAME GROUPNAME PATH\n", argv[0]);
+        printf("Usage:\n# %s USERNAME GROUPNAME PATH\n", argv[0]);
         return -1;
     }
 
