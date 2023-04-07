@@ -10,8 +10,6 @@ OUT= $(BIN_DIR)/main_exec
 all: clean build
 
 build: $(BUILD_DIR)/main.o
-	$(info --- $@ ---)
-
 	mkdir -p $(dir $(OUT))
 	gcc $(CFLAGS) $^ -o $(OUT)
 

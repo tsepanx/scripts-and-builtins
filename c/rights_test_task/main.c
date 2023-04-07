@@ -64,8 +64,6 @@ int traverse(char *path, unsigned int uid, unsigned int gid) {
     if (matches_exclude) { return 0; }
 
     struct stat path_stat;
-    char err_msg[STR_SIZE];
-
     if (lstat(path, &path_stat) == -1) {
         perror(path);
         return -1;
@@ -75,7 +73,6 @@ int traverse(char *path, unsigned int uid, unsigned int gid) {
     struct path_rights pr = get_path_rights(path_stat, uid, gid);
 
     if (pr.writeable) {
-        // printf("%o %b ", access_rights, access_rights);
         char* prefix = is_dir ? "d" : "f";
         printf("%s %s\n", prefix, path);
     }
@@ -83,6 +80,7 @@ int traverse(char *path, unsigned int uid, unsigned int gid) {
     if (is_dir && pr.readable) {
         DIR *dir = opendir(path);
         if (!dir) {
+            char err_msg[STR_SIZE];
             sprintf(err_msg, "dir %s", path);
             perror(err_msg);
             return -1;
