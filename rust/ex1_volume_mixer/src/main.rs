@@ -3,6 +3,7 @@
 // 2. Implement the main function
 
 use std::cmp::{max, min};
+use std::io;
 
 fn increase_volume(volume: i32) -> i32 {
     return min(volume + 5, 100);
